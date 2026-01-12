@@ -6,6 +6,8 @@
 #include <string.h>
 #include <fcntl.h>
 #include <assert.h>
+#include <asm/prctl.h>        /* Definition of ARCH_* constants */
+#include <sys/syscall.h>      /* Definition of SYS_* constants */
 #include <errno.h> //having issues with write
 static int is_in_signal_handler = 0;
 static int is_restart;
@@ -78,11 +80,14 @@ int proc_self_maps(struct proc_maps_line proc_maps[]){
 void signal_handler(int signal){
 	is_in_signal_handler = 1;
 	//get context
+	unsigned long saved_fs;
+	syscall(SYS_arch_prctl, ARCH_GET_FS, &saved_fs);
 	getcontext(&context);
+	syscall(SYS_arch_prctl, ARCH_SET_FS, saved_fs);
 	//set context will bring us exactly right back to where we called get context. this is_restart is basically telling the program we want to restart the program instead of doing the saving again.
 	if(is_restart == 1){
 		is_restart = 0;
-		printf("RESTARTING");
+		printf("RESTARTING\n");
 		return;
 	}
 	else{

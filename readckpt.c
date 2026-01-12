@@ -4,6 +4,8 @@
 #include <fcntl.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <asm/prctl.h>        /* Definition of ARCH_* constants */
+#include <sys/syscall.h>      /* Definition of SYS_* constants */
 #include <ucontext.h>
 #define NAME_LEN 80
 struct save_header{
